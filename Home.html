@@ -1,1 +1,352 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>PoE Recombinator Tool & Simulator</title>
+<style>
+body {
+    background-color: #0f172a;
+    color: #e5e7eb;
+    font-family: system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 0;
+    margin: 0;
+}
 
+.container {
+    background-color: #020617;
+    padding: 24px;
+    border-radius: 12px;
+    width: 380px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    margin-bottom: 30px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #facc15;
+}
+
+label {
+    font-size: 13px;
+    margin-top: 14px;
+    display: block;
+    color: #cbd5f5;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: none;
+    background-color: #1e293b;
+    color: #e5e7eb;
+    font-size: 14px;
+}
+
+input:focus {
+    outline: 2px solid #facc15;
+}
+
+.currency-toggle {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.currency-btn {
+    flex: 1;
+    padding: 6px;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    color: #cbd5f5;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.currency-btn.active {
+    background-color: #facc15;
+    color: #020617;
+    font-weight: bold;
+    border-color: #facc15;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+}
+
+button.calculate {
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #facc15;
+    color: #020617;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button.calculate:hover {
+    background-color: #fde047;
+}
+
+.results {
+    margin-top: 20px;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    display: none;
+}
+
+.result-line {
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.highlight {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+/* Simulatore Piramide */
+.pyramid-container {
+    background-color: #020617;
+    padding: 24px;
+    border-radius: 12px;
+    width: 380px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.pyramid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.top {
+    display: flex;
+    gap: 40px;
+}
+
+.idol-box {
+    width: 90px;
+    height: 50px;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+
+.middle {
+    margin: 30px 0;
+}
+
+.recombine-btn {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #facc15;
+    color: #020617;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #ca8a04;
+}
+
+.recombine-btn:active {
+    box-shadow: 0 2px 0 #ca8a04;
+    transform: translateY(4px);
+}
+
+.bottom {
+    margin-top: 20px;
+}
+
+.result-box {
+    width: 160px;
+    height: 50px;
+    border-radius: 10px;
+    background-color: #020617;
+    border: 2px solid #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.success {
+    color: #22c55e;
+    border-color: #22c55e;
+}
+
+.fail {
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+.sim-stats {
+    margin-top: 14px;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+</style>
+</head>
+<body>
+
+<div style="display:flex; flex-direction: column; gap: 30px; align-items: center;">
+
+    <!-- Calcolatore -->
+    <div class="container">
+        <h1>PoE Recombinator Cost</h1>
+
+        <label>Idolo 1</label>
+        <input id="idol1" type="number" step="0.01">
+        <div class="currency-toggle">
+            <button class="currency-btn active" onclick="setCurrency('idol1','divine')">Divine</button>
+            <button class="currency-btn" onclick="setCurrency('idol1','chaos')">Chaos</button>
+        </div>
+
+        <label>Idolo 2</label>
+        <input id="idol2" type="number" step="0.01">
+        <div class="currency-toggle">
+            <button class="currency-btn active" onclick="setCurrency('idol2','divine')">Divine</button>
+            <button class="currency-btn" onclick="setCurrency('idol2','chaos')">Chaos</button>
+        </div>
+
+        <label>Success Rate (%)</label>
+        <input id="success" type="number" step="0.1">
+
+        <label>1 Divine = Chaos</label>
+        <input id="divineChaos" type="number" step="1">
+
+        <button class="calculate" onclick="calculate()">Calcola</button>
+
+        <div class="results" id="results">
+            <div class="result-line">
+                Costo medio:
+                <span class="highlight" id="resultDivine"></span>
+            </div>
+            <div class="result-line">
+                In Chaos:
+                <span class="highlight" id="resultChaos"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simulatore -->
+    <div class="pyramid-container">
+        <h1>Recombinator Simulator</h1>
+        <div class="pyramid">
+            <div class="top">
+                <div class="idol-box">Idolo 1</div>
+                <div class="idol-box">Idolo 2</div>
+            </div>
+
+            <div class="middle">
+                <button class="recombine-btn" onclick="simulate()">RECOMBINATE</button>
+            </div>
+
+            <div class="bottom">
+                <div id="simResult" class="result-box">—</div>
+            </div>
+        </div>
+
+        <div class="sim-stats" id="simStats">
+            <div>Tentativi: <span id="attempts">0</span></div>
+            <div>Costo totale Divine: <span id="totalDivine">0</span></div>
+            <div>Costo totale Chaos: <span id="totalChaos">0</span></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const currency = { idol1: 'divine', idol2: 'divine' };
+let attempts = 0;
+let totalDivine = 0;
+
+function setCurrency(idol, type) {
+    currency[idol] = type;
+    const buttons = event.target.parentElement.querySelectorAll('.currency-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function getValueInDivine(id, divineChaos) {
+    const value = parseFloat(document.getElementById(id).value);
+    if (isNaN(value)) return 0;
+    return currency[id] === 'divine' ? value : value / divineChaos;
+}
+
+function calculate() {
+    const divineChaos = parseFloat(document.getElementById('divineChaos').value);
+    const success = parseFloat(document.getElementById('success').value);
+
+    if (isNaN(divineChaos) || isNaN(success) || success <= 0) {
+        alert("Inserisci tutti i valori correttamente.");
+        return;
+    }
+
+    const idol1 = getValueInDivine('idol1', divineChaos);
+    const idol2 = getValueInDivine('idol2', divineChaos);
+    const costPerTry = idol1 + idol2;
+    const expectedDivine = costPerTry / (success / 100);
+    const expectedChaos = expectedDivine * divineChaos;
+
+    document.getElementById('resultDivine').textContent = expectedDivine.toFixed(2) + " Divine";
+    document.getElementById('resultChaos').textContent = Math.round(expectedChaos) + " Chaos";
+    document.getElementById('results').style.display = "block";
+}
+
+function simulate() {
+    const divineChaos = parseFloat(document.getElementById('divineChaos').value);
+    const success = parseFloat(document.getElementById('success').value);
+
+    if (isNaN(divineChaos) || isNaN(success) || success <= 0) {
+        alert("Inserisci valori validi.");
+        return;
+    }
+
+    const idol1 = getValueInDivine('idol1', divineChaos);
+    const idol2 = getValueInDivine('idol2', divineChaos);
+    const costPerTry = idol1 + idol2;
+
+    const resultBox = document.getElementById('simResult');
+    resultBox.classList.remove('success', 'fail');
+    resultBox.textContent = "Rolling...";
+
+    setTimeout(() => {
+        const roll = Math.random() * 100;
+        attempts++;
+        let successRoll = false;
+        if (roll <= success) {
+            resultBox.textContent = "SUCCESS";
+            resultBox.classList.add('success');
+            successRoll = true;
+        } else {
+            resultBox.textContent = "FAIL";
+            resultBox.classList.add('fail');
+        }
+
+        totalDivine += costPerTry;
+        document.getElementById('attempts').textContent = attempts;
+        document.getElementById('totalDivine').textContent = totalDivine.toFixed(2);
+        document.getElementById('totalChaos').textContent = Math.round(totalDivine * divineChaos);
+    }, 600);
+}
+</script>
+
+</body>
+</html>
